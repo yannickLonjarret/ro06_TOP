@@ -59,7 +59,20 @@ def compute_savings(all_nodes):
                 if savingIJ >= 0: 
                     savings.append([i, j, savingIJ])
 
-def
+def merge_routes(route_node, node_to_evalutate):
+    route_1 = []
+    route_2 = []
+    for r in R:
+        if route_node in r:
+            if node_to_evalutate in r:
+                return
+            route_1 = r
+        if node_to_evalutate in r:
+            route_2 = r
+
+
+
+
 ###########################
 initial_routes_creation()
 voisins = list(G.adj[d])
