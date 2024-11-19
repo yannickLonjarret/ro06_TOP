@@ -10,10 +10,10 @@ import copy
 V=[]
 E=[]
 
-n=10 #nombre de client
+n=50 #nombre de client
 L=1000 #limite de temps
 m=4 #nombre de véhicules
-C_lim=100 #limite de coût d'un arc (modifiable)
+C_lim=250 #limite de coût d'un arc (modifiable)
 P_lim=100 #limite de profit sur un client
 
 C=[] #Arcs avec coût
@@ -31,7 +31,7 @@ for i in range(n+2): #0 = d et n+1=a
     for j in range(n+2):
         if i !=j:
             E.append((i,j))
-            C.append((i,j, random.randint(1,C_lim)))
+            C.append((i,j, random.randint(125,C_lim)))
 
 P.append(0) #profit au dépôt d
 for i in range(n):
@@ -55,12 +55,11 @@ def initial_routes_creation(R):
         current_computed_route.clear()
 
 def compute_savings(all_nodes):
-    for i in range(1,len(all_nodes)-1):
-        for j in range(1,len(all_nodes)-1):
+    for i in range(1,len(all_nodes)):
+        for j in range(1,len(all_nodes)):
             if i != j:
                 savingIJ = G.edges[i, n+1]['weight'] + G.edges[0, j]['weight'] - G.edges[i, j]['weight']
-                if savingIJ >= 0: 
-                    savings.append([i, j, savingIJ])
+                savings.append([i, j, savingIJ])
 
 
 def calc_profits(P,X):
@@ -78,13 +77,43 @@ def visites(R,X):
 def merge_routes(route_node, node_to_evalutate):
     route_1 = []
     route_2 = []
+    print("First node: "+ str(route_node))
+    print("Second node: "+ str(node_to_evalutate))
     for r in R:
         if route_node in r:
             if node_to_evalutate in r:
+                
                 return
             route_1 = r
         if node_to_evalutate in r:
             route_2 = r
+    print("First route: "+ str(route_1))
+    print("Second route: "+ str(route_2))
+
+    position1 = route_1.index(route_node)
+    position2 = route_2.index(node_to_evalutate)
+
+    if(route_1[position1 + 1] != a  or route_2[position2 -1]!=d):
+        return
+    
+    merge_route = copy.deepcopy(route_1)
+    merge_route.remove(a)
+    for i in range(1, len(route_2)):
+        merge_route.append(route_2[i])
+    print("Merged route: "+ str(merge_route))
+    cost = 0
+    for i in range(len(merge_route) - 1):
+        val = int(G.edges[merge_route[i], merge_route[i+1]]['weight'])
+        cost = cost + val
+    if cost > L:
+        return
+    route_2.clear()
+    
+    for i,r in enumerate(R):
+        if r == route_1:
+            R[i] = merge_route
+
+
     
 
 
@@ -100,12 +129,14 @@ visites(R,X)
 print(X)
 profits=calc_profits(P,X)
 ###########################
-
-
-
 savings.sort(key=lambda x: x[2], reverse=True)
-print("Savings : ",savings)
-#print(G.edges.data())
-#nx.draw(G, with_labels=True)
+for i in range(len(savings)):
+    merge_routes(list(G.nodes)[savings[i][0]], list(G.nodes)[savings[i][1]])
+print(R)
+
+
+#print("Savings : ",savings)
+print(G.edges.data())
+nx.draw(G, with_labels=True)
 #plt.show()
 
