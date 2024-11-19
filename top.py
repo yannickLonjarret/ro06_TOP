@@ -10,6 +10,7 @@ import copy
 V=[]
 E=[]
 
+<<<<<<< HEAD
 n=10 #nombre de client
 L=1000 #limite de temps
 m=4 #nombre de véhicules
@@ -36,6 +37,10 @@ for i in range(n+2): #0 = d et n+1=a
 for i in range(n):
     P.append(random.randint(0,P_lim))
 
+for i in range(n+2):
+    for j in range(n+2):
+        if i !=j and i<j:
+            C.append((i,j, random.randint(1,L)))
 G.add_weighted_edges_from(C)
 
 def initial_routes_creation():
@@ -74,4 +79,14 @@ print(savings)
 print(G.edges.data())
 #nx.draw(G, with_labels=True)
 #plt.show()
+=======
+####### Algorithme de résolution
+
+
+
+#print(C)
+print(C)
+nx.draw(G, with_labels=True)
+plt.show()
+>>>>>>> f38db41ffa3ed229db48f4d1072b03df07c84ade
 
