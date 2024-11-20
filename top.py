@@ -4,6 +4,10 @@ import matplotlib.pyplot as plt
 import random
 import copy
 
+from tkinter import Tk     # from tkinter import Tk for Python 3.x
+from tkinter.filedialog import askopenfilename
+
+
 
 ######Initialisation
 
@@ -24,21 +28,72 @@ d=0
 a=n+1
 
 G=nx.Graph()
-for i in range(n+2): #0 = d et n+1=a
-    V.append(i)
 
-    for j in range(n+2):
-        if i !=j:
-            E.append((i,j))
-            C.append((i,j, random.randint(125,C_lim)))
-
-G.add_node(d, profit=0) #profit au dépôt d
-for i in range(1,n+1):
-    G.add_node(i, profit=random.randint(10,P_lim))
-G.add_node(a, profit=0) #profit au dépôt a
-
-G.add_weighted_edges_from(C)
 ###############################
+
+def extract_data_as_numbers(file_path):
+    """
+    Extracts every line of data from a text file, parsing each value as an integer or float.
+
+    Parameters:
+        file_path (str): Path to the file.
+
+    Returns:
+        list: A list of lists, where each inner list contains numbers from a line in the file.
+    """
+    data = []
+    try:
+        with open(file_path, 'r') as file:
+            for line in file:
+                stripped_line = line.strip()
+                if stripped_line:  # Ignore empty lines
+                    # Split by whitespace and convert to float or int
+                    numbers = []
+                    for value in stripped_line.split():
+                        try:
+                            num = float(value)
+                            num = int(num) if num.is_integer() else num
+                            numbers.append(num)
+                        except ValueError:
+                            pass  # Skip non-numeric values
+                    if numbers:
+                        data.append(numbers)
+        return data
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return []
+
+def initialize_graph_nodes(parsed_data: list):
+    global n,m,L
+    n = parsed_data[0][0]
+    m = parsed_data[1][0]
+    L = parsed_data[2][0]
+    for i in range (n):
+        G.add_node(i, x=parsed_data[i+3][0], y=parsed_data[i+3][1], profit=parsed_data[i+3][2])
+   
+
+def initialize_graph_edges():
+    for i in range(n): #0 = d et n+1=a
+
+        for j in range(0,n):
+            if i != j:
+                
+                first_x = G.nodes[i]['x']
+                first_y = G.nodes[i]['y']
+                second_x = G.nodes[j]['x']
+                second_y = G.nodes[j]['y']
+                local_cost = (second_x - first_x)**2 + (second_y - first_y)**2
+                local_cost = np.sqrt(local_cost)
+                local_cost = float(local_cost)
+                C.append((i,j, local_cost))
+
+    G.add_weighted_edges_from(C)
+
+def initialize_graph_from_file(filepath):
+    parsed_data = extract_data_as_numbers(filepath)
+    initialize_graph_nodes(parsed_data)
+    initialize_graph_edges()
+
 
 def initial_routes_creation(R):
     current_computed_route = []
@@ -48,7 +103,7 @@ def initial_routes_creation(R):
     for i in range(len(voisins)-1):
         current_computed_route.append(d)
         current_computed_route.append(voisins[i])
-        current_computed_route.append(a)
+        current_computed_route.append(n-1)
         deep_copy = copy.deepcopy(current_computed_route)
         R.append(deep_copy)
         current_computed_route.clear()
@@ -57,28 +112,19 @@ def compute_savings(all_nodes):
     for i in range(1,len(all_nodes)):
         for j in range(1,len(all_nodes)):
             if i != j:
-                savingIJ = G.edges[i, n+1]['weight'] + G.edges[0, j]['weight'] - G.edges[i, j]['weight']
+                
+                savingIJ = G.edges[i, n-1]['weight'] + G.edges[0, j]['weight'] - G.edges[i, j]['weight']
                 savings.append([i, j, savingIJ])
-
-
-def calc_profits(P,X):
-    profits=0
-    for i in range (len(P)):
-        profits=profits+X[i]*P[i]
-    
-    return profits
 
 
 def compute_single_route_profit(route):
     profits = 0
-
     for i in route:
         profits = profits + G.nodes[i]['profit']
     return profits
 
 def compute_all_route_profit():
     profits = []
-
     for r in R:
         profits.append(compute_single_route_profit(r))
     
@@ -121,11 +167,11 @@ def merge_routes(route_node, node_to_evalutate):
     position1 = route_1.index(route_node)
     position2 = route_2.index(node_to_evalutate)
 
-    if(route_1[position1 + 1] != a  or route_2[position2 -1]!=d):
+    if(route_1[position1 + 1] != n-1  or route_2[position2 -1]!=d):
         return
     
     merge_route = copy.deepcopy(route_1)
-    merge_route.remove(a)
+    merge_route.remove(n-1)
     for i in range(1, len(route_2)):
         merge_route.append(route_2[i])
 
@@ -140,16 +186,16 @@ def merge_routes(route_node, node_to_evalutate):
     for i,r in enumerate(R):
         if r == route_1:
             R[i] = merge_route
+ 
 
+Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
+filename = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+print(filename)
 
-    
-
-
-
-
-###########################
+initialize_graph_from_file(filename)
+# ###########################
 initial_routes_creation(R)
-print("Routes :", R)
+
 voisins = list(G.adj[d])
 savings = []
 compute_savings(voisins)
@@ -164,9 +210,7 @@ pr = compute_all_route_profit()
 Global_profit = compute_global_profit(pr)
 print(Resulting_Routes)
 print(Global_profit)
-#print("Savings : ",savings)
-#print(G.edges.data())
-#print(G.nodes.data())
+
 nx.draw(G, with_labels=True)
-#plt.show()
+plt.show()
 
