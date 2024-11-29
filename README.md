@@ -5,6 +5,7 @@ This project implements a solution to the **TOP* using the **Savings Algorithm**
 The program utilizes **NetworkX** for graph representation, **NumPy** for calculations, and **Matplotlib** for visualizations. It also features an interactive file loader for importing customer and vehicle data.
 
 This was developed as part of a programming assignment for RO06 during the 2024-2025 academic year. The project was created by Mathieu Kozebda and Yannick Lonjarret.
+
 ---
 
 ## **How It Works**
