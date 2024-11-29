@@ -1,6 +1,6 @@
 # **Naive Team Orienteering Problem (TOP) solution using Clarke and Wright Algorithm**
 
-This project implements a solution to the **TOP* using the **Savings Algorithm**. The objective is to optimize routes for vehicles visiting multiple customers, maximizing profits under given constraints.
+This project implements a solution to the **TOP** using the **Savings Algorithm**. The objective is to optimize routes for vehicles visiting multiple customers, maximizing profits under given constraints.
 
 The program utilizes **NetworkX** for graph representation, **NumPy** for calculations, and **Matplotlib** for visualizations. It also features an interactive file loader for importing customer and vehicle data.
 
